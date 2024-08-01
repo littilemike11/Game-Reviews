@@ -3,7 +3,11 @@ const axios = require("axios");
 const { LocalStorage } = require("node-localstorage");
 const app = express();
 const cors = require("cors");
+const dotenv = require("dotenv");
 const PORT = 3002;
+
+// load environment variables from .env files
+dotenv.config();
 
 const localStorage = new LocalStorage("./games");
 
