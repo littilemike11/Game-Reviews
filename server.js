@@ -5,6 +5,7 @@ const app = express();
 const cors = require("cors");
 const dotenv = require("dotenv");
 const PORT = 3002;
+import router from "./routes/v1.js";
 
 // load environment variables from .env files
 dotenv.config();
@@ -109,6 +110,31 @@ app.post("/reviews", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`running express api at localhost:${PORT}`);
+app.use("/api/v1", router);
+
+// Connect to MongoDB Atlas Database
+
+const uri = process.env.MONGODB_URI;
+const clientOptions = {
+  serverApi: { version: "1", strict: true, deprecationErrors: true },
+};
+
+async function connectDb() {
+  try {
+    // Create a Mongoose client with a MongoClientOptions object to set the Stable API version
+    await mongoose.connect(uri, clientOptions);
+    await mongoose.connection.db.admin().command({ ping: 1 });
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
+  } catch (error) {
+    // Ensures that the client will close when you finish/error
+    await mongoose.disconnect();
+    console.log("error: " + error);
+  }
+}
+
+app.listen(PORT, async () => {
+  await connectDb().catch(console.dir);
+  console.log(`Express Api: localhost: ${PORT}`);
 });
